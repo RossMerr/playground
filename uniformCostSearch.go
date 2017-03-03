@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-// procedure UniformCostSearch(Graph, start, goal)
+// UniformCostSearch (Graph, start, goal)
 //   node ← start
 //   cost ← 0
 //   frontier ← priority queue containing node only
@@ -23,77 +23,51 @@ import (
 //           frontier.add(n)
 //         else if n is in frontier with higher cost
 //           replace existing node with n
-
-type Frontier []*Cost
-
-type Cost struct {
-	*Vertex
-	Cost int
-}
-
-func UniformCostSearch(g *Graph, start *Vertex, goal *Vertex) (map[string]*Vertex, error) {
-
-	frontier := Frontier{}
-	frontier = frontier.push(&Cost{start, 0})
-	explored := make(map[string]*Vertex)
+func UniformCostSearch(g *Graph, start *Vertex, goal *Vertex) ([]*Vertex, error) {
+	frontier := frontier{&path{[]*Vertex{start}, 0}}
+	explored := make(map[string]bool)
 
 	for {
 		if len(frontier) == 0 {
 			return nil, errGoalNoFound
 		}
 
-		var cost *Cost
-		cost, frontier = frontier.pop()
-		node := cost.Vertex
-		explored[node.id] = node
+		var p *path
+		sort.Sort(frontier)
+		p, frontier = frontier.pop()
+		node := p.Vertices[len(p.Vertices)-1]
+		explored[node.id] = true
 
 		if node == goal {
-			break
+			return p.Vertices, nil
 		}
 
-		edges := node.Edges()
-		sort.Sort(edges)
-		for _, e := range edges {
-			n := g.Find(e.id)
-			if _, ok := explored[n.id]; !ok {
-				if i, c, ok := frontier.Contains(n.id); ok && e.weight < c {
-					frontier = frontier.replace(i, &Cost{n, e.weight})
+		for _, e := range node.Edges() {
+			if _, ok := explored[e.id]; !ok {
+				if n, ok := g.Find(e.id); ok {
+					frontier = append(frontier, &path{append(p.Vertices, n), p.Cost + e.weight})
 				} else {
-					frontier = frontier.push(&Cost{n, e.weight})
+					return nil, errors.New("Vertex not found " + e.id)
 				}
+
 			}
 		}
 	}
-
-	return explored, nil
 }
 
 var errGoalNoFound = errors.New("Goal not found")
 
-func (arr Frontier) Contains(ID string) (int, int, bool) {
-	for i, v := range arr {
-		if v.id == ID {
-			return i, v.Cost, true
-		}
-	}
-	return 0, 0, false
+type path struct {
+	Vertices []*Vertex
+	Cost     int
 }
 
-func (slice Frontier) remove(s int) Frontier {
-	return append(slice[:s], slice[s+1:]...)
-}
+type frontier []*path
 
-func (slice Frontier) replace(s int, c *Cost) Frontier {
-	return append(append(slice[:s], c), slice[s+1:]...)
-}
-
-func (slice Frontier) pop() (*Cost, Frontier) {
-	return slice[len(slice)-1], slice[:len(slice)-1]
-}
-
-func (slice Frontier) push(c *Cost) Frontier {
-	return append(slice, c)
-}
+func (f frontier) Len() int               { return len(f) }
+func (f frontier) Swap(i, j int)          { f[i], f[j] = f[j], f[i] }
+func (f frontier) Less(i, j int) bool     { return f[i].Cost < f[j].Cost }
+func (f frontier) pop() (*path, frontier) { return f[0], f[1:] }
 
 func AustraliaGraph() *Graph {
 	drw1 := &Edge{id: "CNS", weight: 30}
@@ -110,7 +84,7 @@ func AustraliaGraph() *Graph {
 	asp2 := &Edge{id: "CNS", weight: 24}
 	asp3 := &Edge{id: "BNE", weight: 31}
 	asp4 := &Edge{id: "CBR", weight: 15}
-	asp5 := &Edge{id: "ADP", weight: 15}
+	asp5 := &Edge{id: "ADL", weight: 15}
 	asp := &Vertex{id: "ASP", edges: Edges{asp1, asp2, asp3, asp4, asp5}}
 
 	bne1 := &Edge{id: "CNS", weight: 22}
@@ -173,12 +147,13 @@ type Graph struct {
 	Vertices map[string]*Vertex
 }
 
-func (g *Graph) Find(ID string) *Vertex {
-	return g.Vertices[ID]
+func (g *Graph) Find(ID string) (*Vertex, bool) {
+	v, b := g.Vertices[ID]
+	return v, b
 }
 
 type Edges []*Edge
 
 func (a Edges) Len() int           { return len(a) }
 func (a Edges) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a Edges) Less(i, j int) bool { return a[i].weight < a[j].weight }
+func (a Edges) Less(i, j int) bool { return a[i].weight > a[j].weight }
