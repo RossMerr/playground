@@ -2,6 +2,7 @@ package playground
 
 import (
 	"errors"
+	"sort"
 )
 
 // procedure UniformCostSearch(Graph, start, goal)
@@ -23,35 +24,45 @@ import (
 //         else if n is in frontier with higher cost
 //           replace existing node with n
 
-type Frontier []*Vertex
+type Frontier []*Cost
+
+type Cost struct {
+	*Vertex
+	Cost int
+}
 
 func UniformCostSearch(g *Graph, start *Vertex, goal *Vertex) (map[string]*Vertex, error) {
 
 	frontier := Frontier{}
-	frontier = append(frontier, start)
+	frontier = frontier.push(&Cost{start, 0})
 	explored := make(map[string]*Vertex)
 
 	for {
-		length := len(frontier)
-		if length == 0 {
+		if len(frontier) == 0 {
 			return nil, errGoalNoFound
 		}
 
-		node := frontier[length]
+		var cost *Cost
+		cost, frontier = frontier.pop()
+		node := cost.Vertex
+		explored[node.id] = node
+
 		if node == goal {
 			break
 		}
 
-		explored[node.id] = node
-		for _, e := range node.Edges() {
+		edges := node.Edges()
+		sort.Sort(edges)
+		for _, e := range edges {
 			n := g.Find(e.id)
 			if _, ok := explored[n.id]; !ok {
-				if !frontier.Contains(n.id) {
-					frontier = append(frontier, n)
+				if i, c, ok := frontier.Contains(n.id); ok && e.weight < c {
+					frontier = frontier.replace(i, &Cost{n, e.weight})
+				} else {
+					frontier = frontier.push(&Cost{n, e.weight})
 				}
 			}
 		}
-
 	}
 
 	return explored, nil
@@ -59,61 +70,77 @@ func UniformCostSearch(g *Graph, start *Vertex, goal *Vertex) (map[string]*Verte
 
 var errGoalNoFound = errors.New("Goal not found")
 
-func (arr Frontier) Contains(ID string) bool {
-	for _, v := range arr {
+func (arr Frontier) Contains(ID string) (int, int, bool) {
+	for i, v := range arr {
 		if v.id == ID {
-			return true
+			return i, v.Cost, true
 		}
 	}
-	return false
+	return 0, 0, false
+}
+
+func (slice Frontier) remove(s int) Frontier {
+	return append(slice[:s], slice[s+1:]...)
+}
+
+func (slice Frontier) replace(s int, c *Cost) Frontier {
+	return append(append(slice[:s], c), slice[s+1:]...)
+}
+
+func (slice Frontier) pop() (*Cost, Frontier) {
+	return slice[len(slice)-1], slice[:len(slice)-1]
+}
+
+func (slice Frontier) push(c *Cost) Frontier {
+	return append(slice, c)
 }
 
 func AustraliaGraph() *Graph {
 	drw1 := &Edge{id: "CNS", weight: 30}
 	drw2 := &Edge{id: "ASP", weight: 15}
 	drw3 := &Edge{id: "PER", weight: 48}
-	drw := &Vertex{id: "1", value: "DRW", edges: []*Edge{drw1, drw2, drw3}}
+	drw := &Vertex{id: "DRW", edges: Edges{drw1, drw2, drw3}}
 
 	cns1 := &Edge{id: "DRW", weight: 30}
 	cns2 := &Edge{id: "ASP", weight: 24}
 	cns3 := &Edge{id: "BNE", weight: 22}
-	cns := &Vertex{id: "2", value: "CNS", edges: []*Edge{cns1, cns2, cns3}}
+	cns := &Vertex{id: "CNS", edges: Edges{cns1, cns2, cns3}}
 
 	asp1 := &Edge{id: "DRW", weight: 15}
 	asp2 := &Edge{id: "CNS", weight: 24}
 	asp3 := &Edge{id: "BNE", weight: 31}
 	asp4 := &Edge{id: "CBR", weight: 15}
 	asp5 := &Edge{id: "ADP", weight: 15}
-	asp := &Vertex{id: "3", value: "ASP", edges: []*Edge{asp1, asp2, asp3, asp4, asp5}}
+	asp := &Vertex{id: "ASP", edges: Edges{asp1, asp2, asp3, asp4, asp5}}
 
 	bne1 := &Edge{id: "CNS", weight: 22}
 	bne2 := &Edge{id: "ASP", weight: 31}
 	bne3 := &Edge{id: "SYD", weight: 9}
-	bne := &Vertex{id: "4", value: "BNE", edges: []*Edge{bne1, bne2, bne3}}
+	bne := &Vertex{id: "BNE", edges: Edges{bne1, bne2, bne3}}
 
 	syd1 := &Edge{id: "BNE", weight: 9}
 	syd2 := &Edge{id: "MEL", weight: 12}
 	syd3 := &Edge{id: "CBR", weight: 4}
-	syd := &Vertex{id: "5", value: "SYD", edges: []*Edge{syd1, syd2, syd3}}
+	syd := &Vertex{id: "SYD", edges: Edges{syd1, syd2, syd3}}
 
 	cbr1 := &Edge{id: "MEL", weight: 6}
 	cbr2 := &Edge{id: "SYD", weight: 4}
 	cbr3 := &Edge{id: "ASP", weight: 15}
-	cbr := &Vertex{id: "6", value: "CBR", edges: []*Edge{cbr1, cbr2, cbr3}}
+	cbr := &Vertex{id: "CBR", edges: Edges{cbr1, cbr2, cbr3}}
 
 	mel1 := &Edge{id: "SYD", weight: 12}
 	mel2 := &Edge{id: "CBR", weight: 6}
-	mel3 := &Edge{id: "ASL", weight: 8}
-	mel := &Vertex{id: "7", value: "MEL", edges: []*Edge{mel1, mel2, mel3}}
+	mel3 := &Edge{id: "ADL", weight: 8}
+	mel := &Vertex{id: "MEL", edges: Edges{mel1, mel2, mel3}}
 
 	adl1 := &Edge{id: "MEL", weight: 8}
 	adl2 := &Edge{id: "ASP", weight: 15}
 	adl3 := &Edge{id: "PER", weight: 32}
-	adl := &Vertex{id: "8", value: "ADL", edges: []*Edge{adl1, adl2, adl3}}
+	adl := &Vertex{id: "ADL", edges: Edges{adl1, adl2, adl3}}
 
 	per1 := &Edge{id: "ADL", weight: 32}
 	per2 := &Edge{id: "DRW", weight: 48}
-	per := &Vertex{id: "9", value: "PER", edges: []*Edge{per1, per2}}
+	per := &Vertex{id: "PER", edges: Edges{per1, per2}}
 	vertices := make(map[string]*Vertex)
 	vertices[drw.id] = drw
 	vertices[cns.id] = cns
@@ -130,11 +157,10 @@ func AustraliaGraph() *Graph {
 
 type Vertex struct {
 	id    string
-	value string
-	edges []*Edge
+	edges Edges
 }
 
-func (v *Vertex) Edges() []*Edge {
+func (v *Vertex) Edges() Edges {
 	return v.edges
 }
 
@@ -150,3 +176,9 @@ type Graph struct {
 func (g *Graph) Find(ID string) *Vertex {
 	return g.Vertices[ID]
 }
+
+type Edges []*Edge
+
+func (a Edges) Len() int           { return len(a) }
+func (a Edges) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a Edges) Less(i, j int) bool { return a[i].weight < a[j].weight }
