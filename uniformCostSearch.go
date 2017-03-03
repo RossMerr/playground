@@ -68,6 +68,7 @@ func (arr Frontier) Contains(ID string) bool {
 	return false
 }
 
+//
 type Vertex struct {
 	id string
 }
