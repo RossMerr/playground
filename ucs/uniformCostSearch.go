@@ -1,9 +1,10 @@
-package playground
+package ucs
 
 import (
 	"errors"
 	"sort"
 )
+
 
 // UniformCostSearch (Graph, start, goal)
 //   node ← start

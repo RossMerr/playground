@@ -1,4 +1,4 @@
-package playground
+package ucs
 
 import "testing"
 import "strconv"
