@@ -8,9 +8,9 @@ import "github.com/antlr/antlr4/runtime/Go/antlr"
 type EuclidListener interface {
 	antlr.ParseTreeListener
 
-	// EnterImportR is called when entering the importR production.
-	EnterImportR(c *ImportRContext)
+	// EnterR is called when entering the r production.
+	EnterR(c *RContext)
 
-	// ExitImportR is called when exiting the importR production.
-	ExitImportR(c *ImportRContext)
+	// ExitR is called when exiting the r production.
+	ExitR(c *RContext)
 }

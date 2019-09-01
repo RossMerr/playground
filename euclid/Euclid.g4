@@ -1,7 +1,11 @@
 grammar Euclid;
 
-IMPORT: 'import';
-DIGIT: [d]+;
-WORD: [w]+;
+// IMPORT: 'import';
+// DIGIT: [d]+;
+// WORD: [w]+;
 
-importR : IMPORT;
+// importR : IMPORT;
+
+r   : 'hello' ID;
+ID  : [a-z]+ ;
+WS  : [ \t\r\n]+ -> skip ;

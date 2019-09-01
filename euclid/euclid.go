@@ -5,14 +5,8 @@ import (
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
-type euclidListener struct {
-	*parser.BaseEuclidListener
-
-	stack []int
-}
-
 // Parser takes a string expression and returns the evaluated result.
-func Parser(input string) {
+func Parser(input string) error  {
 	// Setup the input
 	is := antlr.NewInputStream(input)
 
@@ -23,11 +17,11 @@ func Parser(input string) {
 	// Create the Parser
 	p := parser.NewEuclidParser(stream)
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
-	p.BuildParseTrees = true
+	tree := p.R()
 
-	// // Finally parse the expression (by walking the tree)
-	// var listener euclidListener
-	// antlr.ParseTreeWalkerDefault.Walk(&listener, p.Start())
+	// Finally parse the expression (by walking the tree)
+	var walker euclidWalker
+	antlr.ParseTreeWalkerDefault.Walk(&walker, tree)
 
-	// return listener.pop()
+	return walker.ErrorReport()
 }

@@ -1,4 +1,4 @@
-IMPORT=1
-DIGIT=2
-WORD=3
-'import'=1
+T__0=1
+ID=2
+WS=3
+'hello'=1

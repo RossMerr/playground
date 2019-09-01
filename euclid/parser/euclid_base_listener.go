@@ -21,8 +21,8 @@ func (s *BaseEuclidListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitEveryRule is called when any rule is exited.
 func (s *BaseEuclidListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
-// EnterImportR is called when production importR is entered.
-func (s *BaseEuclidListener) EnterImportR(ctx *ImportRContext) {}
+// EnterR is called when production r is entered.
+func (s *BaseEuclidListener) EnterR(ctx *RContext) {}
 
-// ExitImportR is called when production importR is exited.
-func (s *BaseEuclidListener) ExitImportR(ctx *ImportRContext) {}
+// ExitR is called when production r is exited.
+func (s *BaseEuclidListener) ExitR(ctx *RContext) {}

@@ -16,22 +16,22 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 5, 7, 4,
-	2, 9, 2, 3, 2, 3, 2, 3, 2, 2, 2, 3, 2, 2, 2, 2, 5, 2, 4, 3, 2, 2, 2, 4,
-	5, 7, 3, 2, 2, 5, 3, 3, 2, 2, 2, 2,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 5, 8, 4,
+	2, 9, 2, 3, 2, 3, 2, 3, 2, 3, 2, 2, 2, 3, 2, 2, 2, 2, 6, 2, 4, 3, 2, 2,
+	2, 4, 5, 7, 3, 2, 2, 5, 6, 7, 4, 2, 2, 6, 3, 3, 2, 2, 2, 2,
 }
 var deserializer = antlr.NewATNDeserializer(nil)
 var deserializedATN = deserializer.DeserializeFromUInt16(parserATN)
 
 var literalNames = []string{
-	"", "'import'",
+	"", "'hello'",
 }
 var symbolicNames = []string{
-	"", "IMPORT", "DIGIT", "WORD",
+	"", "", "ID", "WS",
 }
 
 var ruleNames = []string{
-	"importR",
+	"r",
 }
 var decisionToDFA = make([]*antlr.DFA, len(deserializedATN.DecisionToState))
 
@@ -61,80 +61,80 @@ func NewEuclidParser(input antlr.TokenStream) *EuclidParser {
 
 // EuclidParser tokens.
 const (
-	EuclidParserEOF    = antlr.TokenEOF
-	EuclidParserIMPORT = 1
-	EuclidParserDIGIT  = 2
-	EuclidParserWORD   = 3
+	EuclidParserEOF  = antlr.TokenEOF
+	EuclidParserT__0 = 1
+	EuclidParserID   = 2
+	EuclidParserWS   = 3
 )
 
-// EuclidParserRULE_importR is the EuclidParser rule.
-const EuclidParserRULE_importR = 0
+// EuclidParserRULE_r is the EuclidParser rule.
+const EuclidParserRULE_r = 0
 
-// IImportRContext is an interface to support dynamic dispatch.
-type IImportRContext interface {
+// IRContext is an interface to support dynamic dispatch.
+type IRContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsImportRContext differentiates from other interfaces.
-	IsImportRContext()
+	// IsRContext differentiates from other interfaces.
+	IsRContext()
 }
 
-type ImportRContext struct {
+type RContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyImportRContext() *ImportRContext {
-	var p = new(ImportRContext)
+func NewEmptyRContext() *RContext {
+	var p = new(RContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = EuclidParserRULE_importR
+	p.RuleIndex = EuclidParserRULE_r
 	return p
 }
 
-func (*ImportRContext) IsImportRContext() {}
+func (*RContext) IsRContext() {}
 
-func NewImportRContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ImportRContext {
-	var p = new(ImportRContext)
+func NewRContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *RContext {
+	var p = new(RContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = EuclidParserRULE_importR
+	p.RuleIndex = EuclidParserRULE_r
 
 	return p
 }
 
-func (s *ImportRContext) GetParser() antlr.Parser { return s.parser }
+func (s *RContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ImportRContext) IMPORT() antlr.TerminalNode {
-	return s.GetToken(EuclidParserIMPORT, 0)
+func (s *RContext) ID() antlr.TerminalNode {
+	return s.GetToken(EuclidParserID, 0)
 }
 
-func (s *ImportRContext) GetRuleContext() antlr.RuleContext {
+func (s *RContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *ImportRContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *RContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *ImportRContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *RContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(EuclidListener); ok {
-		listenerT.EnterImportR(s)
+		listenerT.EnterR(s)
 	}
 }
 
-func (s *ImportRContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *RContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(EuclidListener); ok {
-		listenerT.ExitImportR(s)
+		listenerT.ExitR(s)
 	}
 }
 
-func (p *EuclidParser) ImportR() (localctx IImportRContext) {
-	localctx = NewImportRContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 0, EuclidParserRULE_importR)
+func (p *EuclidParser) R() (localctx IRContext) {
+	localctx = NewRContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 0, EuclidParserRULE_r)
 
 	defer func() {
 		p.ExitRule()
@@ -155,7 +155,11 @@ func (p *EuclidParser) ImportR() (localctx IImportRContext) {
 	p.EnterOuterAlt(localctx, 1)
 	{
 		p.SetState(2)
-		p.Match(EuclidParserIMPORT)
+		p.Match(EuclidParserT__0)
+	}
+	{
+		p.SetState(3)
+		p.Match(EuclidParserID)
 	}
 
 	return localctx
