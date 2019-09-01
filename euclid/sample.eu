@@ -1,0 +1,16 @@
+import fmt
+
+message := "hello world"
+
+// this is a comment
+test := ()-> {
+    fmt.Printf(message)
+}
+
+test()
+
+/*
+    this is also a comment
+*/
+
+newMessage := message + " and test"

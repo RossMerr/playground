@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"testing"
+
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 
 	"github.com/RossMerr/playground/lexer/parser"
@@ -12,9 +14,7 @@ type calcListener struct {
 	*parser.BaseCalcListener
 
 	stack []int
-
 }
-
 
 func (l *calcListener) push(i int) {
 	l.stack = append(l.stack, i)
@@ -69,10 +69,10 @@ func (l *calcListener) ExitNumber(c *parser.NumberContext) {
 	l.push(i)
 }
 
-
-func main() {
+// calc takes a string expression and returns the evaluated result.
+func calc(input string) int {
 	// Setup the input
-	is := antlr.NewInputStream("1 + 2 * 3")
+	is := antlr.NewInputStream(input)
 
 	// Create the Lexer
 	lexer := parser.NewCalcLexer(is)
@@ -81,6 +81,17 @@ func main() {
 	// Create the Parser
 	p := parser.NewCalcParser(stream)
 
-	// Finally parse the expression
-	antlr.ParseTreeWalkerDefault.Walk(&calcListener{}, p.Start())
+	// Finally parse the expression (by walking the tree)
+	var listener calcListener
+	antlr.ParseTreeWalkerDefault.Walk(&listener, p.Start())
+
+	return listener.pop()
+}
+
+func Test_Walk(t *testing.T) {
+	result := calc("1 + 2 * 3")
+
+	if result != 7 {
+		t.Fatalf("Expected 7 but was %s", strconv.Itoa(result))
+	}
 }

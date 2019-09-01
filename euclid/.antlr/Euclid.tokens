@@ -1,0 +1,4 @@
+IMPORT=1
+DIGIT=2
+WORD=3
+'import'=1
