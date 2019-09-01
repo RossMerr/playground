@@ -1,4 +1,13 @@
 T__0=1
-ID=2
-WS=3
+MUL=2
+DIV=3
+ADD=4
+SUB=5
+NUMBER=6
+WS=7
+ID=8
 'hello'=1
+'*'=2
+'/'=3
+'+'=4
+'-'=5

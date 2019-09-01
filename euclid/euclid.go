@@ -6,7 +6,7 @@ import (
 )
 
 // Parser takes a string expression and returns the evaluated result.
-func Parser(input string) error  {
+func Parser(input string) (error, string)  {
 	// Setup the input
 	is := antlr.NewInputStream(input)
 
@@ -17,11 +17,11 @@ func Parser(input string) error  {
 	// Create the Parser
 	p := parser.NewEuclidParser(stream)
 	p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
-	tree := p.R()
-
+	//tree := p.R()
+	tree := p.Start()
 	// Finally parse the expression (by walking the tree)
 	var walker euclidWalker
 	antlr.ParseTreeWalkerDefault.Walk(&walker, tree)
 
-	return walker.ErrorReport()
+	return walker.ErrorReport(), walker.StackDump()
 }

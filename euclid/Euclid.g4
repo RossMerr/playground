@@ -1,11 +1,22 @@
 grammar Euclid;
 
-// IMPORT: 'import';
-// DIGIT: [d]+;
-// WORD: [w]+;
+MUL: '*';
+DIV: '/';
+ADD: '+';
+SUB: '-';
 
-// importR : IMPORT;
+NUMBER : [0-9]+;
 
+WS  : [ \t\r\n]+ -> skip ;
+
+operation
+    : left=NUMBER operator='+' right=NUMBER 
+    | left=NUMBER operator='-' right=NUMBER
+    | left=NUMBER operator='*' right=NUMBER
+    | left=NUMBER operator='/' right=NUMBER
+    ;
 r   : 'hello' ID;
 ID  : [a-z]+ ;
-WS  : [ \t\r\n]+ -> skip ;
+
+
+start : r | operation EOF;
